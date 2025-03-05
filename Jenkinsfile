@@ -5,7 +5,7 @@ pipeline {
 
     environment {
         // Define environment variables here if needed
-        NODE_ENV = 'production'
+        NODE_ENV = 'TEEEEEEEEEEEETTTTTSSSSSSSSSSSSSSTTTTTTTTTTTTTTTT'
         GITHUB_TOKEN = credentials('demo-token')
     }
 
