@@ -14,7 +14,7 @@ pipeline {
  stage('Checkout') {
             steps {
                 // Checkout the code from GitHub repository
-                echo '$NODE_ENV'  // Use single quotes to print the value of the environment variable
+                echo "$NODE_ENV"  // Use single quotes to print the value of the environment variable
             }
         }
 
