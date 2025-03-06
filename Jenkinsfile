@@ -4,7 +4,7 @@ pipeline {
     }
 
     environment {
-        NODE_ENV = 'production'
+        NODE_ENV = 'TESTTTTTTTTTTTTT'
         GITHUB_TOKEN = credentials('jenkins-github-integration-demo.2025-03-06.private-key.pem') // GitHub token stored in Jenkins credentials
         GITHUB_API_URL = 'https://api.github.com' // GitHub API base URL
     }
