@@ -18,12 +18,11 @@ pipeline {
                     withCredentials([file(credentialsId: 'github-app-private-key', variable: 'PRIVATE_KEY_FILE')]) {
                         // Use the private key stored in Jenkins Credentials
                         def jwt = sh(script: """
-                            # Create JWT for GitHub App authentication
-                            curl -X POST -H "Content-Type: application/json" \
-                            -d '{"iat": $(date +%s), "exp": $(($(date +%s) + 600)), "iss": "your-app-id"}' \
-                            -o jwt.json \
-                            https://api.github.com/app/installations/${GITHUB_INSTALLATION_ID}/access_tokens
-                        """, returnStdout: true).trim()
+    curl -X POST -H "Content-Type: application/json" \
+    -d '{"iat": \$(date +%s), "exp": \$(($(date +%s) + 600)), "iss": "your-app-id"}' \
+    -o jwt.json \
+    https://api.github.com/app/installations/${GITHUB_INSTALLATION_ID}/access_tokens
+""", returnStdout: true).trim()
 
                         def token = readJSON(text: jwt).token
 
