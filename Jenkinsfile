@@ -4,7 +4,7 @@ pipeline {
     }
 
     environment {
-        NODE_ENV = 'We are on PRODUCTION ENV!!!!!!!!!!!!!!!!!!!'
+        NODE_ENV = 'We ARE on PRODUCTION ENV!!!!!!!!!!!!!!!!!!!'
         GITHUB_TOKEN = credentials('jenkins-github-integration-demo.2025-03-06.private-key.pem')
     }
 
