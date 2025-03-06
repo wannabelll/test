@@ -1,40 +1,57 @@
 pipeline {
-    agent { label 'w1' }
+    agent {
+        label 'w1'
+    }
 
     environment {
-        GITHUB_API_URL = 'https://api.github.com'
+        NODE_ENV = 'production'
+        GITHUB_TOKEN = credentials('jenkins-github-integration-demo.2025-03-06.private-key.pem') // GitHub token stored in Jenkins credentials
+        GITHUB_API_URL = 'https://api.github.com' // GitHub API base URL
     }
 
     stages {
         stage('Checkout') {
             steps {
+                // This step ensures the repository is checked out before continuing
                 checkout scm
+                echo "$NODE_ENV"
             }
         }
 
-        stage('Create Release') {
+        stage('Build') {
+            steps {
+                echo 'Building the project...'
+            }
+        }
+
+        stage('Conditional Build') {
             steps {
                 script {
-                    withCredentials([file(credentialsId: 'github-app-private-key', variable: 'PRIVATE_KEY_FILE')]) {
-                        // Use the private key stored in Jenkins Credentials
-                        def jwt = sh(script: """
-    curl -X POST -H "Content-Type: application/json" \
-    -d '{"iat": \$(date +%s), "exp": \$(($(date +%s) + 600)), "iss": "your-app-id"}' \
-    -o jwt.json \
-    https://api.github.com/app/installations/${GITHUB_INSTALLATION_ID}/access_tokens
-""", returnStdout: true).trim()
+                    if (env.BRANCH_NAME == 'main') {
+                        echo 'Running on the main branch'
 
-                        def token = readJSON(text: jwt).token
+                        // Dynamically extract the repo name and owner from the Git URL
+                        def gitUrl = sh(script: "git config --get remote.origin.url", returnStdout: true).trim()
+                        def repoInfo = gitUrl.replaceAll('git@github.com:', '').replaceAll('.git$', '').split('/')
+                        def repoOwner = repoInfo[0]
+                        def repoName = repoInfo[1]
 
-                        // Now use the token to create a release
+                        // Create the release information
+                        def releaseName = "Release v${env.BUILD_NUMBER}"
+                        def releaseTag = "v${env.BUILD_NUMBER}"
+                        def body = "Release description for build ${env.BUILD_NUMBER}"
+
+                        // Create the GitHub release using the GitHub API
                         def response = sh(script: """
                             curl -X POST \
-                            -H "Authorization: token ${token}" \
-                            -d '{"tag_name": "v1.0", "name": "Release v1.0", "body": "Release description", "draft": false, "prerelease": false}' \
-                            ${GITHUB_API_URL}/repos/${repoOwner}/${repoName}/releases
+                            -H "Authorization: token ${env.GITHUB_TOKEN}" \
+                            -d '{"tag_name": "${releaseTag}", "name": "${releaseName}", "body": "${body}", "draft": false, "prerelease": false}' \
+                            ${env.GITHUB_API_URL}/repos/${repoOwner}/${repoName}/releases
                         """, returnStdout: true).trim()
 
                         echo "Release created: ${response}"
+                    } else {
+                        echo 'Running on a feature branch'
                     }
                 }
             }
