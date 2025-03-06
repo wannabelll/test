@@ -4,16 +4,13 @@ pipeline {
     }
 
     environment {
-        NODE_ENV = 'production'
-        GITHUB_TOKEN = credentials('jenkins-github-integration-demo.2025-03-06.private-key.pem') // GitHub token stored in Jenkins credentials
-        GITHUB_API_URL = 'https://api.github.com' // GitHub API base URL
+        NODE_ENV = 'We are on PRODUCTION ENV!!!!!!!!!!!!!!!!!!!'
+        GITHUB_TOKEN = credentials('jenkins-github-integration-demo.2025-03-06.private-key.pem')
     }
 
     stages {
         stage('Checkout') {
             steps {
-                // This step ensures the repository is checked out before continuing
-                checkout scm
                 echo "$NODE_ENV"
             }
         }
@@ -29,29 +26,10 @@ pipeline {
                 script {
                     if (env.BRANCH_NAME == 'main') {
                         echo 'Running on the main branch'
-
-                        // Dynamically extract the repo name and owner from the Git URL
-                        def gitUrl = sh(script: "git config --get remote.origin.url", returnStdout: true).trim()
-                        def repoInfo = gitUrl.replaceAll('git@github.com:', '').replaceAll('.git$', '').split('/')
-                        def repoOwner = repoInfo[0]
-                        def repoName = repoInfo[1]
-
-                        // Create the release information
-                        def releaseName = "Release v${env.BUILD_NUMBER}"
-                        def releaseTag = "v${env.BUILD_NUMBER}"
-                        def body = "Release description for build ${env.BUILD_NUMBER}"
-
-                        // Create the GitHub release using the GitHub API
-                        def response = sh(script: """
-                            curl -X POST \
-                            -H "Authorization: token ${env.GITHUB_TOKEN}" \
-                            -d '{"tag_name": "${releaseTag}", "name": "${releaseName}", "body": "${body}", "draft": false, "prerelease": false}' \
-                            ${env.GITHUB_API_URL}/repos/${repoOwner}/${repoName}/releases
-                        """, returnStdout: true).trim()
-
-                        echo "Release created: ${response}"
+                        // Add your production build/deploy logic here
                     } else {
                         echo 'Running on a feature branch'
+                        // Add logic for non-main branches here
                     }
                 }
             }
